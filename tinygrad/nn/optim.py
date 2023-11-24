@@ -68,3 +68,21 @@ class LAMB(Optimizer):
         r = 1.0
       t.assign(t.detach() - self.lr * r * up)
     self.realize([self.t] + self.m + self.v)
+
+
+  
+class Lion(Optimizer):
+  def __init__(self, params: List[Tensor], lr=0.001, b1=0.9, b2=0.999, l=1,):
+    super().__init__(params, lr)
+    self.b1, self.b2, self.l, self.t = b1, b2, l, Tensor([0], requires_grad=False).realize()
+    self.m = [Tensor.zeros(*t.shape, device=t.device, requires_grad=False) for t in self.params]
+
+  def step(self) -> None:
+    self.t.assign(self.t + 1).realize()
+    for i, t in enumerate(self.params):
+      assert t.grad is not None
+      g = t.grad.realize()
+      c = (self.b1 * self.m[i] + (1-self.b1)*g).sign()
+      t.assign(t.detach() - self.lr * (c + self.l*t.detach()))
+      self.m[i].assign(self.b2 * self.m[i] + (1.0 - self.b2) * g).realize()
+    self.realize([self.t] + self.m)

@@ -21,7 +21,8 @@ if __name__ == "__main__":
   X_train, Y_train, X_test, Y_test = fetch_mnist(tensors=True)
 
   model = Model()
-  opt = nn.optim.Adam(nn.state.get_parameters(model))
+  #opt = nn.optim.Adam(nn.state.get_parameters(model))
+  opt = nn.optim.Lion(nn.state.get_parameters(model))
 
   # TODO: there's a compiler error if you comment out TinyJit since randint isn't being realized and there's something weird with int
   @TinyJit
